@@ -62,11 +62,11 @@
   #define GPIO_Pin_CAN1_TX            GPIO_Pin_1
 
 #elif defined USE_STM3210E_EVAL
-  #define RCC_APB2Periph_GPIO_CAN1    RCC_APB2Periph_GPIOB
+  #define RCC_APB2Periph_GPIO_CAN1    RCC_APB2Periph_GPIOA
   #define GPIO_Remapping_CAN1         GPIO_Remap1_CAN1
-  #define GPIO_CAN1                   GPIOB
-  #define GPIO_Pin_CAN1_RX            GPIO_Pin_8
-  #define GPIO_Pin_CAN1_TX            GPIO_Pin_9
+  #define GPIO_CAN1                   GPIOA
+  #define GPIO_Pin_CAN1_RX            GPIO_Pin_11
+  #define GPIO_Pin_CAN1_TX            GPIO_Pin_12
 
 #elif defined USE_STM3210C_EVAL
   #define RCC_APB2Periph_GPIO_CAN1    RCC_APB2Periph_GPIOD

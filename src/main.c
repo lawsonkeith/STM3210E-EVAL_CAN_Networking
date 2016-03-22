@@ -12,19 +12,8 @@
   * I've re-targeted it to the STM32F103C8T6 board off ebay.  The idea is to do CAN comms, All i've done so far is re-target the
   * LED.
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * It now outputs a msg at 20Hz ish where DATA[0] is incremented at 1Mbps / Normal
   *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
-  *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
   *
   ******************************************************************************
   */
@@ -123,14 +112,19 @@ int main(void)
 	  if(x==0) {
 		  if(led) {
 			  STM_EVAL_LEDOn(LED1);
+			  Delay();
 		  }
 		  else {
 			  STM_EVAL_LEDOff(LED1);
+			  TxMessage.Data[0]++;
+			  CAN_Transmit(CANx, &TxMessage);
+			  Delay();
 		  }
 		  led ^= 1;
 	  }
 
-    while(STM_EVAL_PBGetState(BUTTON_KEY) == KEY_PRESSED)
+
+    /*while(STM_EVAL_PBGetState(BUTTON_KEY) == KEY_PRESSED)
     {
       if(KeyNumber == 0x4) 
       {
@@ -147,7 +141,7 @@ int main(void)
         {
         }
       }
-    }
+    }*/
   }
 }
 
@@ -179,7 +173,7 @@ void CAN_Config(void)
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIO_CAN, &GPIO_InitStructure);
   
-  GPIO_PinRemapConfig(GPIO_Remapping_CAN , ENABLE);
+ GPIO_PinRemapConfig(GPIO_Remapping_CAN , DISABLE);
   
   /* CANx Periph clock enable */
 #ifdef  __CAN1_USED__
@@ -330,7 +324,7 @@ void Delay(void)
 {
   uint16_t nTime = 0x0000;
 
-  for(nTime = 0; nTime <0xFFF; nTime++)
+  for(nTime = 0; nTime <0xFFFF; nTime++)
   {
   }
 }
