@@ -1,4 +1,4 @@
-Project to output CAN fromes off a STM32F103. 
+##Project to output CAN frames off a STM32F103. 
 
 Setup your CAN as follows using TI SN65HVD230 :
 
