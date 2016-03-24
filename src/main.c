@@ -9,11 +9,9 @@
   * @attention
   * KL
   * This is derived form the Atollic peripheral examples for the STM3210E-EVAL board which used the STM32F103ZET6.
-  * I've re-targeted it to the STM32F103C8T6 board off ebay.  The idea is to do CAN comms, All i've done so far is re-target the
-  * LED.
+  * I've re-targeted it to the STM32F103C8T6 board off ebay.  The idea is to do CAN comms.
   *
-  * It now outputs a msg at 20Hz ish where DATA[0] is incremented at 1Mbps / Normal
-  *
+  * It will transmit CAN frames at about 2Hz and it's bow also got LED debus and UART debug on it.
   *
   ******************************************************************************
   */
@@ -21,39 +19,20 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 #include "platform_config.h"
-
-/** @addtogroup STM32F10x_StdPeriph_Examples
-  * @{
-  */
-
-/** @addtogroup CAN_Networking
-  * @{
-  */ 
-
+#define DFLASH 	Delay();	Delay();	Delay();	Delay(); Delay();  STM_EVAL_LEDOn(LED1);	  Delay();	Delay();	Delay();	Delay();	Delay();	STM_EVAL_LEDOff(LED1);
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define __CAN1_USED__
 /* #define __CAN2_USED__*/
 
-#ifdef  __CAN1_USED__
-  #define CANx                       CAN1
-  #define GPIO_CAN                   GPIO_CAN1
-  #define GPIO_Remapping_CAN         GPIO_Remapping_CAN1
-  #define GPIO_CAN                   GPIO_CAN1
-  #define GPIO_Pin_CAN_RX            GPIO_Pin_CAN1_RX
-  #define GPIO_Pin_CAN_TX            GPIO_Pin_CAN1_TX
-#else /*__CAN2_USED__*/
-  #define CANx                       CAN2
-  #define GPIO_CAN                   GPIO_CAN2
-  #define GPIO_Remapping_CAN             GPIO_Remap_CAN2
-  #define GPIO_CAN                   GPIO_CAN2
-  #define GPIO_Pin_CAN_RX            GPIO_Pin_CAN2_RX
-  #define GPIO_Pin_CAN_TX            GPIO_Pin_CAN2_TX
-#endif  /* __CAN1_USED__ */
 
-#define KEY_PRESSED     0x01
-#define KEY_NOT_PRESSED 0x00
+#define CANx                       CAN1
+#define GPIO_CAN                   GPIO_CAN1
+#define GPIO_Remapping_CAN         GPIO_Remapping_CAN1
+#define GPIO_CAN                   GPIO_CAN1
+#define GPIO_Pin_CAN_RX            GPIO_Pin_CAN1_RX
+#define GPIO_Pin_CAN_TX            GPIO_Pin_CAN1_TX
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -72,8 +51,7 @@ void Debug(char *Msg);
 void GPIO_Configuration(void);
 void RCC_Configuration(void);
 USART_InitTypeDef USART_InitStructure;
-__IO uint8_t TxCounter = 0, RxCounter = 0;
-__IO uint8_t index = 0;
+
 /* Private functions ---------------------------------------------------------*/
 
 /**
@@ -83,19 +61,23 @@ __IO uint8_t index = 0;
   */
 int main(void)
 {
-  /*!< At this stage the microcontroller clock setting is already configured, 
+  /*!< At this stage the microcontroller clock setting is already configured,
        this is done through SystemInit() function which is called from startup
        file (startup_stm32f10x_xx.s) before to branch to application main.
        To reconfigure the default setting of SystemInit() function, refer to
        system_stm32f10x.c file
-     */     
-       
+  */
+
+  /* Configures LED 1..4 */
+  STM_EVAL_LEDInit(LED1);
+  STM_EVAL_LEDOff(LED1);
+  DFLASH
+
   /* NVIC configuration */
   NVIC_Config();
-
-  //USART, taken from USART_Polling example
   RCC_Configuration();
   GPIO_Configuration();
+
   USART_InitStructure.USART_BaudRate = 19200;
   USART_InitStructure.USART_WordLength = USART_WordLength_8b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
@@ -105,35 +87,30 @@ int main(void)
   USART_Init(USART1, &USART_InitStructure);
   USART_Cmd(USART1, ENABLE);
   Debug("\nZZZZZZZZZZZZZZzzzzzzzzzzzzzzzzzz!!!!!!!!!!!!!!!!!!!!");
+  DFLASH
 
-  /* Configures LED 1..4 */
-  STM_EVAL_LEDInit(LED1);
-   
   /* CAN configuration */
   CAN_Config();
-  
   CAN_ITConfig(CANx, CAN_IT_FMP0, ENABLE);
-
 
   /* Infinite loop */
   short int x,led;
 
-  while(1)
-  {
-	  x++;
-	  if(x==0) {
-		  if(led) {
-			  STM_EVAL_LEDOn(LED1);
-			  Delay();
-		  }
-		  else {
-			  STM_EVAL_LEDOff(LED1);
-			  TxMessage.Data[0]++;
-			  CAN_Transmit(CANx, &TxMessage);
-			  Delay();
-		  }
-		  led ^= 1;
-	  }
+  while(1) {
+    x++;
+    if (x == 0) {
+      if (led) {
+          STM_EVAL_LEDOn(LED1);
+          Delay();
+      }
+      else {
+          STM_EVAL_LEDOff(LED1);
+          TxMessage.Data[0]++;
+          CAN_Transmit(CANx, &TxMessage);
+          Delay();
+      }
+      led ^= 1;
+    }
   }//END While
 }//END main
 
@@ -279,32 +256,7 @@ void Init_RxMes(CanRxMsg *RxMessage)
   */
 void LED_Display(uint8_t Ledstatus)
 {
-  /* Turn off all leds */
-  STM_EVAL_LEDOff(LED1);
-  STM_EVAL_LEDOff(LED2);
-  STM_EVAL_LEDOff(LED3);
-  STM_EVAL_LEDOff(LED4);
-  
-  switch(Ledstatus)
-  {
-    case(1): 
-      STM_EVAL_LEDOn(LED1);
-      break;
-   
-    case(2): 
-      STM_EVAL_LEDOn(LED2);
-      break;
- 
-    case(3): 
-      STM_EVAL_LEDOn(LED3);
-      break;
 
-    case(4): 
-      STM_EVAL_LEDOn(LED4);
-      break;
-    default:
-      break;
-  }
 }
 
 /**
@@ -343,15 +295,16 @@ void RCC_Configuration(void)
 
 void Debug(char *Msg)
 {
-	int i;
-	for(i=0;i<255;i++) {
-		while (!(USART1->SR & USART_SR_TXE)) // empty?
-		{
-		}
-		USART_SendData(USART1, Msg[i]); // tx
-		if(Msg[i] == 0) // EOL
-			break;
-	}
+  int i;
+
+  for (i = 0; i < 255; i++) {
+    while (!(USART1->SR & USART_SR_TXE)) // empty?
+    {
+    }
+    USART_SendData(USART1, Msg[i]); // tx
+    if (Msg[i] == 0) // EOL
+      break;
+  }
 }//END Debug
 
 /**
@@ -361,10 +314,9 @@ void Debug(char *Msg)
   */
 void Delay(void)
 {
-  uint16_t nTime = 0x0000;
+  uint32_t nTime = 0x0000;
 
-  for(nTime = 0; nTime <0xFFFF; nTime++)
-  {
+  for (nTime = 0; nTime < 0xFFFFF; nTime++) {
   }
 }
 
@@ -390,12 +342,5 @@ void assert_failed(uint8_t* file, uint32_t line)
 
 #endif
 
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
