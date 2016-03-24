@@ -11,3 +11,13 @@ Canbus analyser setup (microchip)...
 Schematic for F103...
 
 ![](https://github.com/lawsonkeith/STM3210E-EVAL_CAN_Networking/raw/master/57.JPG)
+
+###Wiring
+
+###Mods
+Generally:
+
+* Cange build settings to your processor type STM32F103C8T6
+* Change eval board to  USE_STM3210E_EVAL
+
+Then check you're ont the right pins in platform_config.h. 
