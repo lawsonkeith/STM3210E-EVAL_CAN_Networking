@@ -1,4 +1,5 @@
 ##Project to output CAN frames off a STM32F103. 
+A debug port is added to USART 1 to debug the code, this transmitts strings to a terminak at 19K2 baud.
 
 Setup your CAN as follows using TI SN65HVD230 & STM32F103C8T6:
 
@@ -14,6 +15,7 @@ Schematic for F103...
 
 ###Wiring
 
+
 Can analyser:
 
 | CAN Tx | Analayzer |
@@ -22,21 +24,24 @@ Can analyser:
 |  Can H | 3 Can H |
 | Can L | 2 Can L |
 
+
 Can Transceiver:
 
 | STM | Can Tx |
-| -- | -- |
+| ---  | --- |
 | A11 | CRX |
 | A12 | CTX |
-| G | GND |
+| G   | GND |
 | 3.3 | 3V3 |
 
-3.3V TTL-> USB Converter (debug)
+
+3.3V TTL-> USB Converter (debug port)
 
 | STM | TTL |
 | --- | --- |
 | G | Gnd |
 | A9 | RXD |
+
 
 STM32 to STLink
 
