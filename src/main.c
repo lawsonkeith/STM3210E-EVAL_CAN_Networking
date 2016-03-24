@@ -68,7 +68,12 @@ void CAN_Config(void);
 void LED_Display(uint8_t Ledstatus);
 void Init_RxMes(CanRxMsg *RxMessage);
 void Delay(void);
-
+void Debug(char *Msg);
+void GPIO_Configuration(void);
+void RCC_Configuration(void);
+USART_InitTypeDef USART_InitStructure;
+__IO uint8_t TxCounter = 0, RxCounter = 0;
+__IO uint8_t index = 0;
 /* Private functions ---------------------------------------------------------*/
 
 /**
@@ -88,14 +93,21 @@ int main(void)
   /* NVIC configuration */
   NVIC_Config();
 
+  //USART, taken from USART_Polling example
+  RCC_Configuration();
+  GPIO_Configuration();
+  USART_InitStructure.USART_BaudRate = 19200;
+  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+  USART_InitStructure.USART_StopBits = USART_StopBits_1;
+  USART_InitStructure.USART_Parity = USART_Parity_No;
+  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+  USART_Init(USART1, &USART_InitStructure);
+  USART_Cmd(USART1, ENABLE);
+  Debug("\nZZZZZZZZZZZZZZzzzzzzzzzzzzzzzzzz!!!!!!!!!!!!!!!!!!!!");
+
   /* Configures LED 1..4 */
   STM_EVAL_LEDInit(LED1);
-  /*STM_EVAL_LEDInit(LED2);
-  STM_EVAL_LEDInit(LED3);
-  STM_EVAL_LEDInit(LED4);*/
-  
-  /* Configure Push button key */
-  STM_EVAL_PBInit(BUTTON_KEY, BUTTON_MODE_GPIO); 
    
   /* CAN configuration */
   CAN_Config();
@@ -122,28 +134,8 @@ int main(void)
 		  }
 		  led ^= 1;
 	  }
-
-
-    /*while(STM_EVAL_PBGetState(BUTTON_KEY) == KEY_PRESSED)
-    {
-      if(KeyNumber == 0x4) 
-      {
-        KeyNumber = 0x00;
-      }
-      else
-      {
-        LED_Display(++KeyNumber);
-        TxMessage.Data[0] = KeyNumber;
-        CAN_Transmit(CANx, &TxMessage);
-        Delay();
-        
-        while(STM_EVAL_PBGetState(BUTTON_KEY) != KEY_NOT_PRESSED)
-        {
-        }
-      }
-    }*/
-  }
-}
+  }//END While
+}//END main
 
 /**
   * @brief  Configures the CAN.
@@ -314,6 +306,53 @@ void LED_Display(uint8_t Ledstatus)
       break;
   }
 }
+
+/**
+  * @brief  Configures the different GPIO ports.
+  * @param  None
+  * @retval None
+  */
+void GPIO_Configuration(void)
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+
+  /* Configure USARTy Rx as input floating */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+
+  /* Configure USARTy Tx as alternate function push-pull */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+}
+
+
+void RCC_Configuration(void)
+{
+  /* Enable GPIO clock */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA  |  RCC_APB2Periph_AFIO, ENABLE);
+
+  /* Enable USARTy Clock */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+
+}
+
+void Debug(char *Msg)
+{
+	int i;
+	for(i=0;i<255;i++) {
+		while (!(USART1->SR & USART_SR_TXE)) // empty?
+		{
+		}
+		USART_SendData(USART1, Msg[i]); // tx
+		if(Msg[i] == 0) // EOL
+			break;
+	}
+}//END Debug
 
 /**
   * @brief  Delay
