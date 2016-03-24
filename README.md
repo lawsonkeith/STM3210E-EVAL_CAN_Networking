@@ -1,5 +1,5 @@
 ##Project to output CAN frames off a STM32F103. 
-A debug port is added to USART 1 to debug the code, this transmitts strings to a terminak at 19K2 baud.
+A debug port is added to USART 1 to debug the code, this transmits strings to a terminal at 19K2 baud.
 
 Setup your CAN as follows using TI SN65HVD230 & STM32F103C8T6:
 
