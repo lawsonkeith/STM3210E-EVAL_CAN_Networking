@@ -14,6 +14,39 @@ Schematic for F103...
 
 ###Wiring
 
+Can analyser:
+
+| CAN Tx | Analayzer |
+| --- | --- |
+|  Gnd | 6 Gnd |
+|  Can H | 3 Can H |
+| Can L | 2 Can L |
+
+Can Transceiver:
+
+| STM | Can Tx |
+| -- | -- |
+| A11 | CRX |
+| A12 | CTX |
+| G | GND |
+| 3.3 | 3V3 |
+
+3.3V TTL-> USB Converter (debug)
+
+| STM | TTL |
+| --- | --- |
+| G | Gnd |
+| A9 | RXD |
+
+STM32 to STLink
+
+| STM | STLink |
+| --- | --- |
+| 3.3 | 3.3V |
+| IO | SWDIO |
+| CLK | SWCLK |
+| GND | GND |
+
 ###Mods
 Generally:
 
