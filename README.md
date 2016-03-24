@@ -52,6 +52,13 @@ STM32 to STLink
 | CLK | SWCLK |
 | GND | GND |
 
+Boot  pins
+
+| Boot0 | Boot1 |
+| --- | --- |
+| 0 | 0 |
+
+
 ###Mods
 Generally:
 
