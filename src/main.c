@@ -87,10 +87,12 @@ int main(void)
   USART_Init(USART1, &USART_InitStructure);
   USART_Cmd(USART1, ENABLE);
   Debug("\nZZZZZZZZZZZZZZzzzzzzzzzzzzzzzzzz!!!!!!!!!!!!!!!!!!!!");
+
   DFLASH
 
   /* CAN configuration */
   CAN_Config();
+  Delay();
   CAN_ITConfig(CANx, CAN_IT_FMP0, ENABLE);
 
   /* Infinite loop */
@@ -316,7 +318,7 @@ void Delay(void)
 {
   uint32_t nTime = 0x0000;
 
-  for (nTime = 0; nTime < 0xFFFFF; nTime++) {
+  for (nTime = 0; nTime < 0x2FFFFF; nTime++) {
   }
 }
 
