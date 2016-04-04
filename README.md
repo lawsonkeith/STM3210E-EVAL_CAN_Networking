@@ -13,6 +13,14 @@ Schematic for F103...
 
 ![](https://github.com/lawsonkeith/STM3210E-EVAL_CAN_Networking/raw/master/57.JPG)
 
+Here I used a cheapo ebay CAN monitor:
+
+STM3210E-EVAL_CAN_Networking/Can analyser.PNG
+
+![](https://github.com/lawsonkeith/STM3210E-EVAL_CAN_Networking/raw/master/cheapo can wiring.PNG)
+
+![](https://github.com/lawsonkeith/STM3210E-EVAL_CAN_Networking/raw/master/cheapo can.PNG)
+
 ###Wiring
 
 
